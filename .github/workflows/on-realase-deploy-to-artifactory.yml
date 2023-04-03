@@ -1,0 +1,69 @@
+name: On release - deploy images to artifactory
+on:
+  release:
+    types: [published]
+env:
+  DOCKER_IMAGE_BACKEND: ${{ secrets.ORG_ARTIFACTORY_URL }}/nordlb-ilab-docker-dev/${{ github.repository }}-backend:${{ github.event.release.tag_name }}
+  DOCKER_IMAGE_KOTLIN_BACKEND: ${{ secrets.ORG_ARTIFACTORY_URL }}/nordlb-ilab-docker-dev/${{ github.repository }}-backend-kotlin:${{ github.event.release.tag_name }}
+  DOCKER_IMAGE_FRONTEND: ${{ secrets.ORG_ARTIFACTORY_URL }}/nordlb-ilab-docker-dev/${{ github.repository }}-frontend:${{ github.event.release.tag_name }}
+  ARTIFACTORY_REPOSITORY_DEV: nordlb-ilab-docker-dev
+jobs:
+  push_to_artifactory:
+    name: Push Docker images to NordLB Artifactory
+    runs-on: [self-hosted, nordlb-azure]
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Import Artifactory Server
+        uses: nordlb-cloud/github-actions/setup-jfrog-cli@main
+        with:
+          ORG_ARTIFACTORY_CLI: ${{ secrets.ORG_ARTIFACTORY_CLI }}
+
+      - name: Build Java-Backend Docker Image
+        run: docker build --build-arg KAFKA_USER_ARGUMENT=${{ secrets.KAFKA_USER }} --build-arg KAFKA_PASSWORD_ARGUMENT=${{ secrets.KAFKA_PASSWORD }} -t ${{ env.DOCKER_IMAGE_BACKEND }} ./backend
+
+      - name: Push to Artifactory and Scan Image
+        run: |
+          echo "Push Image"
+          jfrog rt dp ${{ env.DOCKER_IMAGE_BACKEND }} ${{ env.ARTIFACTORY_REPOSITORY_DEV }}
+          echo "Collecting Information from Git"
+          jfrog rt bag
+          echo "Collecting Environment Variables of the Build"
+          jfrog rt bce
+          echo "Publish Build Information to Artifactory"
+          jfrog rt bp
+          echo "Scan Published Build with Xray"
+          jfrog rt bs --fail=false
+
+      - name: Build Kotlin-Backend Docker Image
+        run: docker build -t ${{ env.DOCKER_IMAGE_KOTLIN_BACKEND }} ./backend-kotlin
+
+      - name: Push to Artifactory and Scan Image
+        run: |
+          echo "Push Image"
+          jfrog rt dp ${{ env.DOCKER_IMAGE_KOTLIN_BACKEND }} ${{ env.ARTIFACTORY_REPOSITORY_DEV }}
+          echo "Collecting Information from Git"
+          jfrog rt bag
+          echo "Collecting Environment Variables of the Build"
+          jfrog rt bce
+          echo "Publish Build Information to Artifactory"
+          jfrog rt bp
+          echo "Scan Published Build with Xray"
+          jfrog rt bs --fail=false
+
+      - name: Build Frontend Docker Image
+        run: docker build --build-arg NPM_TOKEN=${{ secrets.ORG_NPM_TOKEN }} -t ${{ env.DOCKER_IMAGE_FRONTEND }} ./frontend
+
+      - name: Push to Artifactory and Scan Image
+        run: |
+          echo "Push Image"
+          jfrog rt dp ${{ env.DOCKER_IMAGE_FRONTEND }} ${{ env.ARTIFACTORY_REPOSITORY_DEV }}
+          echo "Collecting Information from Git"
+          jfrog rt bag
+          echo "Collecting Environment Variables of the Build"
+          jfrog rt bce
+          echo "Publish Build Information to Artifactory"
+          jfrog rt bp
+          echo "Scan Published Build with Xray"
+          jfrog rt bs --fail=false
