@@ -1,0 +1,14 @@
+name: On push - build images for testing
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Build Docker Image for Backend
+        run: docker build ./backend
+
+      - name: Build Docker Image for Frontend
+        run: docker build ./frontend
