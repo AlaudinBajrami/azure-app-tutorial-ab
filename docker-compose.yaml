@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+
+  backend:
+    image: nordlb/app-tutorial-backend
+    container_name: app-tutorial-backend-container
+    ports:
+      - "8080:8080"
+    environment:
+      - ALLOWED_ORIGINS=http://localhost
+
+  frontend:
+    image: nordlb/app-tutorial-frontend
+    container_name: app-tutorial-frontend-container
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_HOST=http://localhost
+      - BACKEND_HOST_PORT=8080

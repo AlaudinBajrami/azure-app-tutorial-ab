@@ -1,0 +1,5 @@
+# dependencies
+node_modules/
+
+# jetbrain stuff
+/frontend.iml

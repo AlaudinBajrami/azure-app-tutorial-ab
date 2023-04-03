@@ -1,0 +1,8 @@
+# dependencies
+target/
+
+# jetbrain stuff
+/backend.iml
+
+# vscode stuff
+.vscode/
