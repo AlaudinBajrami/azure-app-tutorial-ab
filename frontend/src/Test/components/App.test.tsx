@@ -1,6 +1,8 @@
 import React from 'react';
+import '../setupTests';
+import "../mocks.js"
 import { render, screen } from '@testing-library/react';
-import App from './App';
+import App from '../../main/components/App';
 
 test('renders http session id', () => {
   render(<App />);
