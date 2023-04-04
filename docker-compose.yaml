@@ -1,6 +1,18 @@
 version: '3.8'
 services:
 
+  db:
+    image: postgres:14-alpine
+    hostname: postgres_db
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: superuser
+    volumes:
+      - ./postgres/init.sql//:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
   backend:
     image: nordlb/app-tutorial-backend
     container_name: app-tutorial-backend-container
