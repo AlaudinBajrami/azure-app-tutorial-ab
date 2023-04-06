@@ -28,6 +28,4 @@ class ApplicationDataRepositoryTest {
         assertEquals(1, applicationDataList.size());
         assertEquals("Persisted information", applicationDataList.get(0).getInformation());
     }
-
-
 }

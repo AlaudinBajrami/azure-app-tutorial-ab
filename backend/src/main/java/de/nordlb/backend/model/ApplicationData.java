@@ -1,6 +1,5 @@
 package de.nordlb.backend.model;
 
-
 import jakarta.persistence.*;
 
 @Entity
@@ -14,5 +13,16 @@ public class ApplicationData {
     @Column(length = 100)
     private String information;
 
-    // ...
+    public ApplicationData(){
+    }
+
+    public ApplicationData(String information) {
+        this.information = information;
+    }
+
+
+    public String getInformation() {
+
+        return information;
+    }
 }
